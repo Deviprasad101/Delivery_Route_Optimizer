@@ -57,34 +57,39 @@ const RiderRegistration = () => {
           
           <div className="rider-grid-5">
             {/* Doc Card 1 */}
-            <div className="rider-doc-card">
+            <label className="rider-doc-card">
+              <input type="file" style={{ display: 'none' }} accept="image/*,.pdf" />
               <span className="material-symbols-outlined">id_card</span>
               <span>Driving License</span>
-            </div>
+            </label>
 
             {/* Doc Card 2 */}
-            <div className="rider-doc-card">
+            <label className="rider-doc-card">
+              <input type="file" style={{ display: 'none' }} accept="image/*,.pdf" />
               <span className="material-symbols-outlined">description</span>
               <span>Vehicle RC</span>
-            </div>
+            </label>
 
             {/* Doc Card 3 */}
-            <div className="rider-doc-card">
+            <label className="rider-doc-card">
+              <input type="file" style={{ display: 'none' }} accept="image/*,.pdf" />
               <span className="material-symbols-outlined">verified_user</span>
               <span>Insurance</span>
-            </div>
+            </label>
 
             {/* Doc Card 4 */}
-            <div className="rider-doc-card">
+            <label className="rider-doc-card">
+              <input type="file" style={{ display: 'none' }} accept="image/*,.pdf" />
               <span className="material-symbols-outlined">badge</span>
               <span>ID Proof</span>
-            </div>
+            </label>
 
             {/* Doc Card 5 */}
-            <div className="rider-doc-card">
+            <label className="rider-doc-card">
+              <input type="file" style={{ display: 'none' }} accept="image/*,.pdf" />
               <span className="material-symbols-outlined">account_circle</span>
               <span>Profile Photo</span>
-            </div>
+            </label>
           </div>
         </div>
 
