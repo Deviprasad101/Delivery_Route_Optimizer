@@ -7,10 +7,14 @@ const RiderApproval = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRider, setSelectedRider] = useState(null);
   
-  const [approvals, setApprovals] = useState([
-    { id: 1, name: 'Ravi', phone: '987xxxx', status: 'Pending', documents: { 'Driving License': 'dl.pdf' } },
-    { id: 2, name: 'Arun', phone: '987xxxx', status: 'Pending', documents: { 'Profile Photo': 'arun_pic.png' } },
-  ]);
+  const [approvals, setApprovals] = useState(() => {
+    const saved = sessionStorage.getItem('riderApprovals');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('riderApprovals', JSON.stringify(approvals));
+  }, [approvals]);
 
   useEffect(() => {
     // If a new rider was passed via routing state, add them to the list
@@ -31,6 +35,10 @@ const RiderApproval = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedRider(null);
+  };
+
+  const handleDelete = (id) => {
+    setApprovals(prev => prev.filter(rider => rider.id !== id));
   };
 
   return (
@@ -93,7 +101,7 @@ const RiderApproval = () => {
                     </td>
                     <td className="text-right actions-cell">
                       <button className="btn btn-approve">Approve</button>
-                      <button className="btn btn-reject">Reject</button>
+                      <button className="btn btn-reject" onClick={() => handleDelete(rider.id)}>Delete</button>
                     </td>
                   </tr>
                 ))}
