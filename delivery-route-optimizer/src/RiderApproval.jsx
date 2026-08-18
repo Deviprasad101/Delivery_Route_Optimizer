@@ -1,16 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import './RiderApproval.css';
 
 const RiderApproval = () => {
+  const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRider, setSelectedRider] = useState(null);
+  
+  const [approvals, setApprovals] = useState([
+    { id: 1, name: 'Ravi', phone: '987xxxx', status: 'Pending', documents: { 'Driving License': 'dl.pdf' } },
+    { id: 2, name: 'Arun', phone: '987xxxx', status: 'Pending', documents: { 'Profile Photo': 'arun_pic.png' } },
+  ]);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  useEffect(() => {
+    // If a new rider was passed via routing state, add them to the list
+    if (location.state && location.state.newRider) {
+      setApprovals(prev => {
+        // Prevent adding duplicates on re-render in strict mode
+        if (prev.some(r => r.id === location.state.newRider.id)) return prev;
+        return [...prev, location.state.newRider];
+      });
+    }
+  }, [location.state]);
 
-  const approvals = [
-    { id: 1, name: 'Ravi', phone: '987xxxx', status: 'Pending' },
-    { id: 2, name: 'Arun', phone: '987xxxx', status: 'Pending' },
-  ];
+  const openModal = (rider) => {
+    setSelectedRider(rider);
+    setIsModalOpen(true);
+  };
+  
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedRider(null);
+  };
 
   return (
     <div className="approval-page font-inter">
@@ -59,12 +80,18 @@ const RiderApproval = () => {
                   <tr key={rider.id} className="row-animation" style={{ animationDelay: `${0.1 * (index + 1)}s` }}>
                     <td className="font-medium">{rider.name}</td>
                     <td className="text-variant">{rider.phone}</td>
-                    <td className="text-variant">View Documents</td>
+                    <td className="text-variant">
+                      <span 
+                        style={{ color: 'var(--primary)', cursor: 'pointer', textDecoration: 'underline', fontWeight: 500 }}
+                        onClick={() => openModal(rider)}
+                      >
+                        View Documents
+                      </span>
+                    </td>
                     <td>
                       <span className="status-badge">{rider.status}</span>
                     </td>
                     <td className="text-right actions-cell">
-                      <button className="btn btn-outline" onClick={openModal}>View</button>
                       <button className="btn btn-approve">Approve</button>
                       <button className="btn btn-reject">Reject</button>
                     </td>
@@ -89,42 +116,52 @@ const RiderApproval = () => {
       </footer>
 
       {/* Documents Modal */}
-      {isModalOpen && (
+      {isModalOpen && selectedRider && (
         <div className="modal-overlay active" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Documents List</h3>
+              <h3>Documents for {selectedRider.name}</h3>
               <button className="modal-close" onClick={closeModal}>
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
             <div className="modal-body">
-              <ul className="doc-list">
-                <li>
-                  <span className="material-symbols-outlined doc-icon">description</span>
-                  <span>Aadhaar / ID</span>
-                </li>
-                <li>
-                  <span className="material-symbols-outlined doc-icon">description</span>
-                  <span>Driving License</span>
-                </li>
-                <li>
-                  <span className="material-symbols-outlined doc-icon">description</span>
-                  <span>Vehicle RC</span>
-                </li>
-                <li>
-                  <span className="material-symbols-outlined doc-icon">description</span>
-                  <span>Insurance</span>
-                </li>
-                <li>
-                  <span className="material-symbols-outlined doc-icon">image</span>
-                  <span>Profile photo</span>
-                </li>
-                <li>
-                  <span className="material-symbols-outlined doc-icon">folder_open</span>
-                  <span>Other required documents</span>
-                </li>
-              </ul>
+              {selectedRider.documents && Object.keys(selectedRider.documents).length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {Object.entries(selectedRider.documents).map(([docType, docData], i) => {
+                    const isObject = typeof docData === 'object' && docData !== null;
+                    const fileName = isObject ? docData.name : docData;
+                    const fileUrl = isObject ? docData.url : null;
+                    const isImage = isObject ? docData.isImage : (typeof docData === 'string' && (docData.endsWith('.png') || docData.endsWith('.jpg') || docData.endsWith('.jpeg')));
+
+                    return (
+                      <div key={i} style={{ border: '1px solid var(--surface-variant)', borderRadius: '8px', overflow: 'hidden' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'var(--surface)' }}>
+                          <span className="material-symbols-outlined doc-icon">
+                            {isImage ? 'image' : 'description'}
+                          </span>
+                          <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                            <span style={{ fontWeight: 600, fontSize: '12px' }}>{docType}</span>
+                            <span className="text-variant" style={{ fontSize: '12px' }}>{fileName}</span>
+                          </div>
+                          {fileUrl && !isImage && (
+                            <a href={fileUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>
+                              Open
+                            </a>
+                          )}
+                        </div>
+                        {isImage && fileUrl && (
+                           <div style={{ padding: '0', borderTop: '1px solid var(--surface-variant)', backgroundColor: '#fff', textAlign: 'center' }}>
+                             <img src={fileUrl} alt={docType} style={{ maxWidth: '100%', maxHeight: '200px', display: 'block', margin: '0 auto', objectFit: 'contain' }} />
+                           </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-variant" style={{ textAlign: 'center', padding: '1rem' }}>No documents uploaded.</p>
+              )}
             </div>
             <div className="modal-footer">
               <button className="btn btn-primary" onClick={closeModal}>Done</button>
