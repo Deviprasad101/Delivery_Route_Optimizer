@@ -1,7 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './RiderRegistration.css';
 
 const RiderRegistration = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="rider-page font-inter">
       <main className="rider-card animate-fade-in">
@@ -54,7 +57,7 @@ const RiderRegistration = () => {
         {/* Document Upload Section */}
         <div className="rider-section animate-fade-in delay-300">
           <h2 className="rider-subtitle">Upload Documents</h2>
-          
+
           <div className="rider-grid-5">
             {/* Doc Card 1 */}
             <label className="rider-doc-card">
@@ -95,7 +98,7 @@ const RiderRegistration = () => {
 
         {/* Action Button */}
         <div className="rider-button-container animate-fade-in delay-300">
-          <button className="rider-button">
+          <button className="rider-button" onClick={() => navigate('/approval')}>
             Submit for Approval
           </button>
         </div>
