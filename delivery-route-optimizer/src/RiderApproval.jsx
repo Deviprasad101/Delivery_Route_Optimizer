@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './RiderApproval.css';
 
 const RiderApproval = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRider, setSelectedRider] = useState(null);
   
@@ -39,6 +40,11 @@ const RiderApproval = () => {
 
   const handleDelete = (id) => {
     setApprovals(prev => prev.filter(rider => rider.id !== id));
+  };
+
+  const handleApprove = (rider) => {
+    // Navigate to the rider dashboard with the approved rider details
+    navigate('/dashboard', { state: { approvedRider: rider } });
   };
 
   return (
@@ -100,7 +106,7 @@ const RiderApproval = () => {
                       <span className="status-badge">{rider.status}</span>
                     </td>
                     <td className="text-right actions-cell">
-                      <button className="btn btn-approve">Approve</button>
+                      <button className="btn btn-approve" onClick={() => handleApprove(rider)}>Approve</button>
                       <button className="btn btn-reject" onClick={() => handleDelete(rider.id)}>Delete</button>
                     </td>
                   </tr>
