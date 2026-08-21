@@ -57,6 +57,40 @@ const RiderDashboard = () => {
             </div>
             <button className="px-md py-sm rounded border border-outline-variant text-secondary font-label-md text-label-md hover:bg-surface-container transition-colors">Go Offline</button>
           </div>
+          
+          <div className="bg-surface-container-lowest border border-outline-variant rounded-lg p-lg shadow-sm flex flex-col gap-md">
+            <div className="flex justify-between items-center border-b border-outline-variant pb-sm">
+              <h2 className="font-headline-md text-headline-md text-on-surface">My Trips</h2>
+              <span className="material-symbols-outlined text-secondary">history</span>
+            </div>
+            
+            <div className="flex flex-col gap-sm">
+              <p className="font-label-md text-label-md text-secondary font-semibold uppercase">Today</p>
+              
+              <div className="border border-outline-variant rounded-md p-sm flex justify-between items-center">
+                <div>
+                  <p className="font-body-md text-body-md font-semibold text-on-surface">Kumar</p>
+                  <p className="font-body-sm text-body-sm text-secondary">Chennai → T Nagar</p>
+                  <p className="font-label-sm text-label-sm text-primary font-bold mt-1">Completed</p>
+                </div>
+                <p className="font-headline-sm text-headline-sm font-bold text-on-surface">₹180</p>
+              </div>
+
+              <div className="border border-outline-variant rounded-md p-sm flex justify-between items-center">
+                <div>
+                  <p className="font-body-md text-body-md font-semibold text-on-surface">Suresh</p>
+                  <p className="font-body-sm text-body-sm text-secondary">Guindy → Velachery</p>
+                  <p className="font-label-sm text-label-sm text-primary font-bold mt-1">Completed</p>
+                </div>
+                <p className="font-headline-sm text-headline-sm font-bold text-on-surface">₹220</p>
+              </div>
+            </div>
+
+            <div className="mt-md pt-sm border-t border-outline-variant flex justify-between items-center">
+              <p className="font-label-lg text-label-lg text-secondary uppercase">Today's Earnings</p>
+              <p className="font-headline-md text-headline-md font-bold text-primary">₹400</p>
+            </div>
+          </div>
         </div>
         <div className="col-span-4 md:col-span-8">
           <div className="bg-surface-container-lowest border-2 border-on-surface rounded-xl overflow-hidden flex flex-col h-full shadow-md transition-transform duration-200 hover:-translate-y-1">

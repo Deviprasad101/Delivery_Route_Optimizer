@@ -7,27 +7,27 @@ const Sidebar = () => {
       <div className="h-16 flex items-center px-lg border-b border-outline-variant">
         <span className="font-headline-md text-headline-md font-bold text-primary flex items-center gap-sm">
           <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>two_wheeler</span>
-          DeliveryAdmin
+          Delivery
         </span>
       </div>
       <nav className="flex-1 overflow-y-auto py-lg px-md flex flex-col gap-sm">
-        <NavLink 
-          to="/" 
-          className={({isActive}) => `flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors ${isActive ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-secondary hover:bg-surface-container'}`}
+        <NavLink
+          to="/"
+          className={({ isActive }) => `flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors ${isActive ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-secondary hover:bg-surface-container'}`}
         >
           <span className="material-symbols-outlined">person_add</span>
           Registration
         </NavLink>
-        <NavLink 
-          to="/approval" 
-          className={({isActive}) => `flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors ${isActive ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-secondary hover:bg-surface-container'}`}
+        <NavLink
+          to="/approval"
+          className={({ isActive }) => `flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors ${isActive ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-secondary hover:bg-surface-container'}`}
         >
           <span className="material-symbols-outlined">fact_check</span>
           Approvals
         </NavLink>
-        <NavLink 
-          to="/dashboard" 
-          className={({isActive}) => `flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors ${isActive ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-secondary hover:bg-surface-container'}`}
+        <NavLink
+          to="/dashboard"
+          className={({ isActive }) => `flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors ${isActive ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-secondary hover:bg-surface-container'}`}
         >
           <span className="material-symbols-outlined">dashboard</span>
           Dashboard
