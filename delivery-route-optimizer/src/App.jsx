@@ -1,7 +1,7 @@
 import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import RiderRegistration from './RiderRegistration'
-import RiderApproval from './RiderApproval'
+import AdminApproval from './AdminApproval'
 import RiderDashboard from './RiderDashboard'
 import Sidebar from './Sidebar'
 import './App.css'
@@ -14,7 +14,7 @@ function App() {
         <div className="flex-1 h-full overflow-y-auto relative">
           <Routes>
             <Route path="/" element={<RiderRegistration />} />
-            <Route path="/approval" element={<RiderApproval />} />
+            <Route path="/approval" element={<AdminApproval />} />
             <Route path="/dashboard" element={<RiderDashboard />} />
           </Routes>
         </div>

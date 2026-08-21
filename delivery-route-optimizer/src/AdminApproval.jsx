@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import './RiderApproval.css';
+import './AdminApproval.css';
 
-const RiderApproval = () => {
+const AdminApproval = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -187,4 +187,4 @@ const RiderApproval = () => {
   );
 };
 
-export default RiderApproval;
+export default AdminApproval;
