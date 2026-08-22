@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import ActiveTrip from './ActiveTrip';
 
 // Fix for default marker icons in react-leaflet when using Vite/Webpack
 delete L.Icon.Default.prototype._getIconUrl;
@@ -16,6 +17,7 @@ const RiderDashboard = () => {
   const location = useLocation();
   const riderName = location.state?.approvedRider?.name || "Ravi";
   const [routeData, setRouteData] = useState(null);
+  const [isActiveTrip, setIsActiveTrip] = useState(false);
 
   const pickupLoc = [13.0827, 80.2707];
   const dropLoc = [13.0418, 80.2341];
@@ -45,11 +47,15 @@ const RiderDashboard = () => {
           </div>
         </div>
       </header>
-      <main className="flex-grow py-lg pb-[80px] md:pb-lg px-margin-mobile md:px-xl max-w-container-max mx-auto w-full grid grid-cols-4 md:grid-cols-12 gap-gutter overflow-y-auto md:overflow-hidden min-h-0">
-        <div className="col-span-4 md:col-span-12 mb-lg">
-          <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">Welcome, {riderName}</h1>
-        </div>
-        <div className="col-span-4 md:col-span-4 flex flex-col gap-lg">
+      <main className={`flex-grow py-lg pb-[80px] md:pb-lg px-margin-mobile md:px-xl max-w-container-max mx-auto w-full overflow-y-auto md:overflow-hidden min-h-0 ${!isActiveTrip ? 'grid grid-cols-4 md:grid-cols-12 gap-gutter' : ''}`}>
+        {isActiveTrip ? (
+          <ActiveTrip onBack={() => setIsActiveTrip(false)} />
+        ) : (
+          <>
+            <div className="col-span-4 md:col-span-12 mb-lg">
+              <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">Welcome, {riderName}</h1>
+            </div>
+            <div className="col-span-4 md:col-span-4 flex flex-col gap-lg">
           <div className="bg-surface-container-lowest border border-outline-variant rounded-lg p-lg shadow-sm flex items-center justify-between">
             <div className="flex items-center gap-sm">
               <div className="w-4 h-4 rounded-full bg-primary-container"></div>
@@ -137,7 +143,10 @@ const RiderDashboard = () => {
                   <p className="font-label-sm text-label-sm text-secondary uppercase mb-xs">Distance</p>
                   <p className="font-body-lg text-body-lg text-on-surface">7.2 km</p>
                 </div>
-                <button className="bg-primary-container text-on-primary font-label-md text-label-md font-bold px-xl py-md rounded-lg shadow-sm hover:opacity-90 transition-opacity flex items-center gap-sm">
+                <button 
+                  className="bg-primary-container text-on-primary font-label-md text-label-md font-bold px-xl py-md rounded-lg shadow-sm hover:opacity-90 transition-opacity flex items-center gap-sm"
+                  onClick={() => setIsActiveTrip(true)}
+                >
                   ACCEPT RIDE
                   <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                 </button>
@@ -145,6 +154,8 @@ const RiderDashboard = () => {
             </div>
           </div>
         </div>
+        </>
+        )}
       </main>
       <nav className="fixed bottom-0 left-0 w-full flex justify-around items-center py-2 bg-surface-container-lowest border-t border-outline-variant z-50 md:hidden">
         <a className="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-95 transition-transform duration-100" href="#">
