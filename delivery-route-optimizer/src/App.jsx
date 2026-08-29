@@ -1,26 +1,39 @@
 import React from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import RiderRegistration from './RiderRegistration'
 import AdminApproval from './AdminApproval'
 import RiderDashboard from './RiderDashboard'
+import AdminDashboard from './AdminDashboard'
 import Sidebar from './Sidebar'
 import './App.css'
+
+const AppContent = () => {
+  const location = useLocation();
+  const hideSidebarRoutes = ['/admin-dashboard'];
+  const showSidebar = !hideSidebarRoutes.includes(location.pathname);
+
+  return (
+    <div className="flex h-screen w-screen overflow-hidden bg-surface">
+      {showSidebar && <Sidebar />}
+      <div className={`flex-1 h-full overflow-y-auto relative ${showSidebar ? '' : 'flex flex-col'}`}>
+        <Routes>
+          <Route path="/" element={<RiderRegistration />} />
+          <Route path="/approval" element={<AdminApproval />} />
+          <Route path="/dashboard" element={<RiderDashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        </Routes>
+      </div>
+    </div>
+  );
+};
 
 function App() {
   return (
     <BrowserRouter>
-      <div className="flex h-screen w-screen overflow-hidden bg-surface">
-        <Sidebar />
-        <div className="flex-1 h-full overflow-y-auto relative">
-          <Routes>
-            <Route path="/" element={<RiderRegistration />} />
-            <Route path="/approval" element={<AdminApproval />} />
-            <Route path="/dashboard" element={<RiderDashboard />} />
-          </Routes>
-        </div>
-      </div>
+      <AppContent />
     </BrowserRouter>
   )
 }
 
 export default App
+
