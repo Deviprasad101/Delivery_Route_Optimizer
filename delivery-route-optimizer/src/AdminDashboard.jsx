@@ -1,7 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const AdminDashboard = () => {
+  const [recentTrips, setRecentTrips] = useState([]);
+  const [pendingApprovals, setPendingApprovals] = useState([]);
+
+  useEffect(() => {
+    const savedApproved = sessionStorage.getItem('approvedRiders');
+    if (savedApproved) {
+      setRecentTrips(JSON.parse(savedApproved));
+    }
+    
+    const savedPending = sessionStorage.getItem('riderApprovals');
+    if (savedPending) {
+      setPendingApprovals(JSON.parse(savedPending));
+    }
+  }, []);
+
+  const totalRiders = recentTrips.length;
+  const pendingCount = pendingApprovals.length;
+  const activeTripsCount = recentTrips.filter(t => t.status === 'Active').length;
+  const completedTripsCount = recentTrips.filter(t => t.status === 'Completed').length;
+
   return (
     <div className="bg-[#F4F7FA] text-on-background font-body-md min-h-screen h-screen flex overflow-hidden">
       {/* SideNavBar */}
@@ -220,7 +240,7 @@ const AdminDashboard = () => {
                 </div>
                 <div>
                   <h3 className="font-body-md text-on-surface-variant font-medium mb-1">Total Riders</h3>
-                  <div className="font-display-lg text-display-lg text-on-surface font-bold tracking-tight">25</div>
+                  <div className="font-display-lg text-display-lg text-on-surface font-bold tracking-tight">{totalRiders}</div>
                 </div>
               </div>
 
@@ -238,7 +258,7 @@ const AdminDashboard = () => {
                 </div>
                 <div>
                   <h3 className="font-body-md text-on-surface-variant font-medium mb-1">Pending Approval</h3>
-                  <div className="font-display-lg text-display-lg text-on-surface font-bold tracking-tight">5</div>
+                  <div className="font-display-lg text-display-lg text-on-surface font-bold tracking-tight">{pendingCount}</div>
                 </div>
               </div>
 
@@ -257,7 +277,7 @@ const AdminDashboard = () => {
                 </div>
                 <div>
                   <h3 className="font-body-md text-on-surface-variant font-medium mb-1">Active Trips</h3>
-                  <div className="font-display-lg text-display-lg text-on-surface font-bold tracking-tight">8</div>
+                  <div className="font-display-lg text-display-lg text-on-surface font-bold tracking-tight">{activeTripsCount}</div>
                 </div>
               </div>
 
@@ -275,7 +295,7 @@ const AdminDashboard = () => {
                 </div>
                 <div>
                   <h3 className="font-body-md text-on-surface-variant font-medium mb-1">Completed Trips</h3>
-                  <div className="font-display-lg text-display-lg text-on-surface font-bold tracking-tight">42</div>
+                  <div className="font-display-lg text-display-lg text-on-surface font-bold tracking-tight">{completedTripsCount}</div>
                 </div>
               </div>
             </div>
@@ -311,60 +331,47 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/10 bg-surface-container-lowest">
-                    <tr className="hover:bg-surface-container-low/50 transition-colors group cursor-pointer">
-                      <td className="px-xl py-lg">
-                        <div className="flex items-center gap-sm">
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                            R
-                          </div>
-                          <span className="text-on-surface font-semibold">Ravi</span>
-                        </div>
-                      </td>
-                      <td className="px-xl py-lg text-on-surface-variant">Kumar</td>
-                      <td className="px-xl py-lg">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-medium text-[13px] border border-emerald-100 gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                          Completed
-                        </span>
-                      </td>
-                      <td className="px-xl py-lg text-right font-mono-metric text-on-surface font-semibold">
-                        ₹180
-                      </td>
-                      <td className="px-xl py-lg text-right">
-                        <button className="text-outline hover:text-primary transition-colors opacity-0 group-hover:opacity-100">
-                          <span className="material-symbols-outlined text-[20px]" data-icon="more_vert">
-                            more_vert
-                          </span>
-                        </button>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-surface-container-low/50 transition-colors group cursor-pointer">
-                      <td className="px-xl py-lg">
-                        <div className="flex items-center gap-sm">
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                            A
-                          </div>
-                          <span className="text-on-surface font-semibold">Arun</span>
-                        </div>
-                      </td>
-                      <td className="px-xl py-lg text-on-surface-variant">Suresh</td>
-                      <td className="px-xl py-lg">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-50 text-amber-700 font-medium text-[13px] border border-amber-100 gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                          Active
-                        </span>
-                      </td>
-                      <td className="px-xl py-lg text-right font-mono-metric text-on-surface font-semibold">
-                        ₹220
-                      </td>
-                      <td className="px-xl py-lg text-right">
-                        <button className="text-outline hover:text-primary transition-colors opacity-0 group-hover:opacity-100">
-                          <span className="material-symbols-outlined text-[20px]" data-icon="more_vert">
-                            more_vert
-                          </span>
-                        </button>
-                      </td>
-                    </tr>
+                    {recentTrips.length > 0 ? (
+                      recentTrips.map((trip) => (
+                        <tr key={trip.id} className="hover:bg-surface-container-low/50 transition-colors group cursor-pointer">
+                          <td className="px-xl py-lg">
+                            <div className="flex items-center gap-sm">
+                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm uppercase">
+                                {trip.name ? trip.name.charAt(0) : 'U'}
+                              </div>
+                              <span className="text-on-surface font-semibold">{trip.name || 'Unknown Rider'}</span>
+                            </div>
+                          </td>
+                          <td className="px-xl py-lg text-on-surface-variant">{trip.customer || 'N/A'}</td>
+                          <td className="px-xl py-lg">
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full font-medium text-[13px] gap-1.5 border ${
+                              trip.status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'
+                            }`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${
+                                trip.status === 'Completed' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'
+                              }`}></span>
+                              {trip.status}
+                            </span>
+                          </td>
+                          <td className="px-xl py-lg text-right font-mono-metric text-on-surface font-semibold">
+                            ₹{trip.amount || 0}
+                          </td>
+                          <td className="px-xl py-lg text-right">
+                            <button className="text-outline hover:text-primary transition-colors opacity-0 group-hover:opacity-100">
+                              <span className="material-symbols-outlined text-[20px]" data-icon="more_vert">
+                                more_vert
+                              </span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="5" className="px-xl py-lg text-center text-on-surface-variant font-medium">
+                          No recent trips found. Approved riders will appear here.
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>

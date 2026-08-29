@@ -43,6 +43,20 @@ const AdminApproval = () => {
   };
 
   const handleApprove = (rider) => {
+    // Save to approved list for Admin Dashboard
+    const savedApproved = JSON.parse(sessionStorage.getItem('approvedRiders') || '[]');
+    // Add mock customer and amount for display in admin dashboard table
+    const approvedRiderData = { 
+      ...rider, 
+      status: 'Active', 
+      customer: 'Customer ' + Math.floor(Math.random() * 100), 
+      amount: Math.floor(Math.random() * 400) + 100 
+    };
+    sessionStorage.setItem('approvedRiders', JSON.stringify([...savedApproved, approvedRiderData]));
+    
+    // Remove from pending
+    setApprovals(prev => prev.filter(r => r.id !== rider.id));
+
     // Navigate to the rider dashboard with the approved rider details
     navigate('/dashboard', { state: { approvedRider: rider } });
   };

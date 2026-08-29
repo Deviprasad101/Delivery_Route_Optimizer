@@ -39,6 +39,13 @@ const Sidebar = () => {
           <span className="material-symbols-outlined">admin_panel_settings</span>
           Admin Dashboard
         </NavLink>
+        <NavLink
+          to="/trip-completed"
+          className={({ isActive }) => `flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors ${isActive ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-secondary hover:bg-surface-container'}`}
+        >
+          <span className="material-symbols-outlined">check_circle</span>
+          Trip Status
+        </NavLink>
       </nav>
       <div className="p-md border-t border-outline-variant">
         <div className="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md text-secondary hover:bg-surface-container cursor-pointer transition-colors">
