@@ -28,12 +28,21 @@ class Admin(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
 
+    def __init__(self, username, password_hash):
+        self.username = username
+        self.password_hash = password_hash
+
 class Customer(db.Model):
     __tablename__ = 'customers'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
+
+    def __init__(self, username, email, password_hash):
+        self.username = username
+        self.email = email
+        self.password_hash = password_hash
 
 class Rider(db.Model):
     __tablename__ = 'riders'
@@ -42,6 +51,12 @@ class Rider(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     status = db.Column(db.String(20), default='Pending')
+
+    def __init__(self, username, email, password_hash, status='Pending'):
+        self.username = username
+        self.email = email
+        self.password_hash = password_hash
+        self.status = status
 
 # -------------------------------------------------------------
 # Configuration for SMTP
