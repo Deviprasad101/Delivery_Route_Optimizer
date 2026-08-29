@@ -24,7 +24,13 @@ const RiderRegistration = () => {
       status: 'Pending',
       documents: docs
     };
-    navigate('/approval', { state: { newRider } });
+    
+    // Save to pending approvals in session storage directly
+    const pending = JSON.parse(sessionStorage.getItem('riderApprovals') || '[]');
+    sessionStorage.setItem('riderApprovals', JSON.stringify([...pending, newRider]));
+
+    // Navigate rider to their dashboard
+    navigate('/dashboard');
   };
 
   return (

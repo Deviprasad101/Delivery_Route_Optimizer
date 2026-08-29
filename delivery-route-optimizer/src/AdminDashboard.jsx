@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [recentTrips, setRecentTrips] = useState([]);
   const [pendingApprovals, setPendingApprovals] = useState([]);
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    sessionStorage.removeItem('userRole');
+    navigate('/');
+  };
 
   useEffect(() => {
     const savedApproved = sessionStorage.getItem('approvedRiders');
@@ -132,15 +139,15 @@ const AdminDashboard = () => {
               </a>
             </li>
             <li>
-              <a
-                className="flex items-center gap-md px-md py-sm rounded-lg text-error hover:bg-error/10 transition-all duration-200 ease-in-out font-medium"
-                href="#"
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-md px-md py-sm rounded-lg text-error hover:bg-error/10 transition-all duration-200 ease-in-out font-medium cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[20px]" data-icon="logout">
                   logout
                 </span>
                 Logout
-              </a>
+              </button>
             </li>
           </ul>
         </div>

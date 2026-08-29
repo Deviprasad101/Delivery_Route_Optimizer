@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { useNavigate } from 'react-router-dom';
 
 // Fix for default marker icons in react-leaflet when using Vite/Webpack
 delete L.Icon.Default.prototype._getIconUrl;
@@ -13,6 +14,8 @@ L.Icon.Default.mergeOptions({
 
 const ActiveTrip = ({ onBack }) => {
   const [routeData, setRouteData] = useState(null);
+  const [tripStarted, setTripStarted] = useState(false);
+  const navigate = useNavigate();
 
   const pickupLoc = [13.0622, 80.2524];
   const dropLoc = [13.0418, 80.2341];
@@ -109,10 +112,23 @@ const ActiveTrip = ({ onBack }) => {
           </div>
           {/* Action Module */}
           <div className="mt-auto shrink-0">
-            <button className="w-full bg-[#36B37E] hover:bg-[#2e9c6d] text-on-secondary font-label-md text-label-md py-4 px-6 rounded transition-colors uppercase tracking-wider font-bold border border-[#2e9c6d] shadow-sm flex items-center justify-center gap-2">
-              <span className="material-symbols-outlined">play_arrow</span>
-              [ START TRIP ]
-            </button>
+            {!tripStarted ? (
+              <button 
+                onClick={() => setTripStarted(true)}
+                className="w-full bg-[#36B37E] hover:bg-[#2e9c6d] text-on-secondary font-label-md text-label-md py-4 px-6 rounded transition-colors uppercase tracking-wider font-bold border border-[#2e9c6d] shadow-sm flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined">play_arrow</span>
+                [ START TRIP ]
+              </button>
+            ) : (
+              <button 
+                onClick={() => navigate('/trip-completed')}
+                className="w-full bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-4 px-6 rounded transition-colors uppercase tracking-wider font-bold shadow-sm flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined">check_circle</span>
+                [ COMPLETE TRIP ]
+              </button>
+            )}
           </div>
         </div>
       </div>

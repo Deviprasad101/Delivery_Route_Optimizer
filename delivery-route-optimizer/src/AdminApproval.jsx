@@ -56,9 +56,6 @@ const AdminApproval = () => {
     
     // Remove from pending
     setApprovals(prev => prev.filter(r => r.id !== rider.id));
-
-    // Navigate to the rider dashboard with the approved rider details
-    navigate('/dashboard', { state: { approvedRider: rider } });
   };
 
   return (
