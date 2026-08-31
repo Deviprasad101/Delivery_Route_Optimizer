@@ -66,7 +66,7 @@ const AdminLogin = () => {
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 placeholder="Enter username" 
-                className="w-full pl-xl pr-md py-md bg-surface-container-low border border-outline-variant/50 rounded-xl focus:border-error focus:ring-1 focus:ring-error outline-none transition-all placeholder-outline text-on-surface"
+                className="w-full pl-[44px] pr-md py-md bg-surface-container-low border border-outline-variant/50 rounded-xl focus:border-error focus:ring-1 focus:ring-error outline-none transition-all placeholder-outline text-on-surface"
               />
             </div>
           </div>
@@ -81,7 +81,7 @@ const AdminLogin = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="Enter password" 
-                className="w-full pl-xl pr-md py-md bg-surface-container-low border border-outline-variant/50 rounded-xl focus:border-error focus:ring-1 focus:ring-error outline-none transition-all placeholder-outline text-on-surface"
+                className="w-full pl-[44px] pr-md py-md bg-surface-container-low border border-outline-variant/50 rounded-xl focus:border-error focus:ring-1 focus:ring-error outline-none transition-all placeholder-outline text-on-surface"
               />
             </div>
           </div>

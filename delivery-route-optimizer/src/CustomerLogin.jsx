@@ -37,8 +37,13 @@ const CustomerLogin = () => {
       setIsSending(false);
 
       if (response.ok && data.success) {
-        setSessionEmail(mode === 'register' ? email : data.email);
-        setStep(2);
+        if (mode === 'login') {
+          sessionStorage.setItem('userRole', 'customer');
+          navigate('/customer-dashboard');
+        } else {
+          setSessionEmail(email);
+          setStep(2);
+        }
       } else {
         alert(data.message || 'Error occurred');
       }
@@ -154,7 +159,7 @@ const CustomerLogin = () => {
                     onChange={(e) => setUsername(e.target.value)}
                     required
                     placeholder="Enter username" 
-                    className="w-full pl-xl pr-md py-md bg-surface-container-low border border-outline-variant/50 rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder-outline text-on-surface"
+                    className="w-full pl-[44px] pr-md py-md bg-surface-container-low border border-outline-variant/50 rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder-outline text-on-surface"
                   />
                 </div>
               </div>
@@ -170,7 +175,7 @@ const CustomerLogin = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       placeholder="Enter email address" 
-                      className="w-full pl-xl pr-md py-md bg-surface-container-low border border-outline-variant/50 rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder-outline text-on-surface"
+                      className="w-full pl-[44px] pr-md py-md bg-surface-container-low border border-outline-variant/50 rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder-outline text-on-surface"
                     />
                   </div>
                 </div>
@@ -186,7 +191,7 @@ const CustomerLogin = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     placeholder="Enter password" 
-                    className="w-full pl-xl pr-md py-md bg-surface-container-low border border-outline-variant/50 rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder-outline text-on-surface"
+                    className="w-full pl-[44px] pr-md py-md bg-surface-container-low border border-outline-variant/50 rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder-outline text-on-surface"
                   />
                 </div>
               </div>
@@ -202,7 +207,7 @@ const CustomerLogin = () => {
                     Processing...
                   </span>
                 ) : (
-                  mode === 'register' ? 'Create Account & Send OTP' : 'Login & Send OTP'
+                  mode === 'register' ? 'Create Account & Send OTP' : 'Login'
                 )}
               </button>
             </form>

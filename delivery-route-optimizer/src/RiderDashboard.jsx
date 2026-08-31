@@ -1,39 +1,57 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import ActiveTrip from './ActiveTrip';
 
 // Fix for default marker icons in react-leaflet when using Vite/Webpack
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+let DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  tooltipAnchor: [16, -28],
+  shadowSize: [41, 41]
 });
+L.Marker.prototype.options.icon = DefaultIcon;
+
+const MapEffect = ({ routeData, pickupCoords, dropCoords }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (pickupCoords && dropCoords) {
+      const bounds = L.latLngBounds([pickupCoords, dropCoords]);
+      map.fitBounds(bounds, { padding: [40, 40], animate: true });
+    }
+  }, [map, routeData, pickupCoords, dropCoords]);
+  return null;
+};
 
 const RiderDashboard = () => {
   const location = useLocation();
   const riderName = location.state?.approvedRider?.name || "Ravi";
-  const [routeData, setRouteData] = useState(null);
+  const [currentTrip, setCurrentTrip] = useState(null);
   const [isActiveTrip, setIsActiveTrip] = useState(false);
 
-  const pickupLoc = [13.0827, 80.2707];
-  const dropLoc = [13.0418, 80.2341];
-
   useEffect(() => {
-    // Fetch route from OSRM
-    fetch(`https://router.project-osrm.org/route/v1/driving/${pickupLoc[1]},${pickupLoc[0]};${dropLoc[1]},${dropLoc[0]}?overview=full&geometries=geojson`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.routes && data.routes.length > 0) {
-          // GeoJSON coordinates are [lon, lat], leaflet needs [lat, lon]
-          const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-          setRouteData(coords);
-        }
-      })
-      .catch(err => console.error("Error fetching OSRM route:", err));
+    const fetchTrips = () => {
+      fetch('http://localhost:5000/api/trips/pending')
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.trips.length > 0) {
+            setCurrentTrip(data.trips[0]);
+          } else {
+            setCurrentTrip(null);
+          }
+        })
+        .catch(err => console.error("Error fetching trips:", err));
+    };
+    
+    fetchTrips();
+    const interval = setInterval(fetchTrips, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -105,52 +123,63 @@ const RiderDashboard = () => {
               <span className="material-symbols-outlined text-tertiary">directions_car</span>
             </div>
             <div className="p-lg flex flex-col gap-md lg:gap-lg flex-grow overflow-y-auto md:overflow-hidden min-h-0">
-              <div className="overflow-hidden rounded-lg border border-outline-variant h-[180px] md:h-[220px] lg:h-[260px] flex-shrink-0 relative z-0">
-                <MapContainer center={[13.0622, 80.2524]} zoom={12} style={{ height: '100%', width: '100%' }}>
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-                  />
-                  <Marker position={pickupLoc} />
-                  <Marker position={dropLoc} />
-                  {routeData && <Polyline positions={routeData} color="#006e2f" weight={5} opacity={0.8} />}
-                </MapContainer>
-              </div>
-              <div className="grid grid-cols-2 gap-md">
-                <div>
-                  <p className="font-label-sm text-label-sm text-secondary uppercase mb-xs">Customer</p>
-                  <p className="font-body-lg text-body-lg text-on-surface font-semibold">Kumar</p>
+              {currentTrip ? (
+                <>
+                  <div className="overflow-hidden rounded-lg border border-outline-variant h-[180px] md:h-[220px] lg:h-[260px] flex-shrink-0 relative z-0">
+                    <MapContainer center={currentTrip.pickupCoords} zoom={12} style={{ height: '100%', width: '100%' }}>
+                      <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+                      />
+                      <Marker position={currentTrip.pickupCoords} />
+                      <Marker position={currentTrip.dropCoords} />
+                      {currentTrip.routeData && <Polyline positions={currentTrip.routeData} color="#006e2f" weight={5} opacity={0.8} />}
+                      <MapEffect routeData={currentTrip.routeData} pickupCoords={currentTrip.pickupCoords} dropCoords={currentTrip.dropCoords} />
+                    </MapContainer>
+                  </div>
+                  <div className="grid grid-cols-2 gap-md">
+                    <div>
+                      <p className="font-label-sm text-label-sm text-secondary uppercase mb-xs">Customer</p>
+                      <p className="font-body-lg text-body-lg text-on-surface font-semibold">{currentTrip.customer_name}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-label-sm text-label-sm text-secondary uppercase mb-xs">Estimated Fare</p>
+                      <p className="font-headline-md text-headline-md text-primary font-bold">₹{currentTrip.fare}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-md relative pl-lg border-l-2 border-outline-variant ml-sm">
+                    <div className="relative">
+                      <div className="absolute -left-[27px] top-1 w-3 h-3 rounded-full bg-secondary border-2 border-surface-container-lowest"></div>
+                      <p className="font-label-sm text-label-sm text-secondary uppercase mb-xs">Pickup</p>
+                      <p className="font-body-md text-body-md text-on-surface">{currentTrip.pickup}</p>
+                    </div>
+                    <div className="relative">
+                      <div className="absolute -left-[27px] top-1 w-3 h-3 rounded-sm bg-primary border-2 border-surface-container-lowest"></div>
+                      <p className="font-label-sm text-label-sm text-secondary uppercase mb-xs">Drop</p>
+                      <p className="font-body-md text-body-md text-on-surface">{currentTrip.drop}</p>
+                    </div>
+                  </div>
+                  <div className="mt-auto pt-lg border-t border-outline-variant flex justify-between items-center">
+                    <div>
+                      <p className="font-label-sm text-label-sm text-secondary uppercase mb-xs">Distance</p>
+                      <p className="font-body-lg text-body-lg text-on-surface">{currentTrip.distance} km</p>
+                    </div>
+                    <button 
+                      className="bg-primary-container text-on-primary font-label-md text-label-md font-bold px-xl py-md rounded-lg shadow-sm hover:opacity-90 transition-opacity flex items-center gap-sm"
+                      onClick={() => setIsActiveTrip(true)}
+                    >
+                      ACCEPT RIDE
+                      <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-center gap-md opacity-70">
+                  <span className="material-symbols-outlined text-[64px] text-outline-variant animate-pulse">radar</span>
+                  <p className="font-headline-sm text-on-surface-variant">Waiting for requests...</p>
+                  <p className="text-sm text-on-surface-variant">Stay online to receive new trip requests in your area.</p>
                 </div>
-                <div className="text-right">
-                  <p className="font-label-sm text-label-sm text-secondary uppercase mb-xs">Estimated Fare</p>
-                  <p className="font-headline-md text-headline-md text-primary font-bold">₹180</p>
-                </div>
-              </div>
-              <div className="flex flex-col gap-md relative pl-lg border-l-2 border-outline-variant ml-sm">
-                <div className="relative">
-                  <div className="absolute -left-[27px] top-1 w-3 h-3 rounded-full bg-secondary border-2 border-surface-container-lowest"></div>
-                  <p className="font-label-sm text-label-sm text-secondary uppercase mb-xs">Pickup</p>
-                  <p className="font-body-md text-body-md text-on-surface">Chennai Central</p>
-                </div>
-                <div className="relative">
-                  <div className="absolute -left-[27px] top-1 w-3 h-3 rounded-sm bg-primary border-2 border-surface-container-lowest"></div>
-                  <p className="font-label-sm text-label-sm text-secondary uppercase mb-xs">Drop</p>
-                  <p className="font-body-md text-body-md text-on-surface">T Nagar</p>
-                </div>
-              </div>
-              <div className="mt-auto pt-lg border-t border-outline-variant flex justify-between items-center">
-                <div>
-                  <p className="font-label-sm text-label-sm text-secondary uppercase mb-xs">Distance</p>
-                  <p className="font-body-lg text-body-lg text-on-surface">7.2 km</p>
-                </div>
-                <button 
-                  className="bg-primary-container text-on-primary font-label-md text-label-md font-bold px-xl py-md rounded-lg shadow-sm hover:opacity-90 transition-opacity flex items-center gap-sm"
-                  onClick={() => setIsActiveTrip(true)}
-                >
-                  ACCEPT RIDE
-                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                </button>
-              </div>
+              )}
             </div>
           </div>
         </div>

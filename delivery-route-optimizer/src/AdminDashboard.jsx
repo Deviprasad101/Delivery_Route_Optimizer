@@ -177,7 +177,7 @@ const AdminDashboard = () => {
                 search
               </span>
               <input
-                className="pl-xl pr-sm py-[8px] bg-surface-container-low/50 border border-outline-variant/50 rounded-full text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:bg-surface-container-lowest outline-none w-[320px] transition-all placeholder-outline hover:border-outline-variant"
+                className="pl-[44px] pr-sm py-[8px] bg-surface-container-low/50 border border-outline-variant/50 rounded-full text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:bg-surface-container-lowest outline-none w-[320px] transition-all placeholder-outline hover:border-outline-variant"
                 placeholder="Search riders, trips, or ID..."
                 type="text"
               />
