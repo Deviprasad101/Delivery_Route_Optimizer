@@ -8,25 +8,22 @@ const AdminApproval = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRider, setSelectedRider] = useState(null);
   
-  const [approvals, setApprovals] = useState(() => {
-    const saved = sessionStorage.getItem('riderApprovals');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [approvals, setApprovals] = useState([]);
 
   useEffect(() => {
-    sessionStorage.setItem('riderApprovals', JSON.stringify(approvals));
-  }, [approvals]);
-
-  useEffect(() => {
-    // If a new rider was passed via routing state, add them to the list
-    if (location.state && location.state.newRider) {
-      setApprovals(prev => {
-        // Prevent adding duplicates on re-render in strict mode
-        if (prev.some(r => r.id === location.state.newRider.id)) return prev;
-        return [...prev, location.state.newRider];
-      });
-    }
-  }, [location.state]);
+    const fetchPending = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/admin/riders/pending');
+        const data = await response.json();
+        if (data.success) {
+          setApprovals(data.riders);
+        }
+      } catch (err) {
+        console.error("Failed to fetch pending riders", err);
+      }
+    };
+    fetchPending();
+  }, []);
 
   const openModal = (rider) => {
     setSelectedRider(rider);
@@ -38,24 +35,38 @@ const AdminApproval = () => {
     setSelectedRider(null);
   };
 
-  const handleDelete = (id) => {
-    setApprovals(prev => prev.filter(rider => rider.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/admin/riders/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+      if (data.success) {
+        setApprovals(prev => prev.filter(rider => rider.id !== id));
+      } else {
+        alert("Failed to delete rider");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting rider");
+    }
   };
 
-  const handleApprove = (rider) => {
-    // Save to approved list for Admin Dashboard
-    const savedApproved = JSON.parse(sessionStorage.getItem('approvedRiders') || '[]');
-    // Add mock customer and amount for display in admin dashboard table
-    const approvedRiderData = { 
-      ...rider, 
-      status: 'Active', 
-      customer: 'Customer ' + Math.floor(Math.random() * 100), 
-      amount: Math.floor(Math.random() * 400) + 100 
-    };
-    sessionStorage.setItem('approvedRiders', JSON.stringify([...savedApproved, approvedRiderData]));
-    
-    // Remove from pending
-    setApprovals(prev => prev.filter(r => r.id !== rider.id));
+  const handleApprove = async (rider) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/admin/riders/${rider.id}/approve`, {
+        method: 'POST',
+      });
+      const data = await response.json();
+      if (data.success) {
+        setApprovals(prev => prev.filter(r => r.id !== rider.id));
+      } else {
+        alert("Failed to approve rider");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error approving rider");
+    }
   };
 
   return (

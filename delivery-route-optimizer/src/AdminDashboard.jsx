@@ -3,8 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [recentTrips, setRecentTrips] = useState([]);
-  const [pendingApprovals, setPendingApprovals] = useState([]);
+  const [stats, setStats] = useState({
+    total_riders: 0,
+    pending_approvals: 0,
+    active_trips: 0,
+    completed_trips: 0,
+    recent_trips: []
+  });
 
   const handleLogout = (e) => {
     e.preventDefault();
@@ -13,21 +18,25 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    const savedApproved = sessionStorage.getItem('approvedRiders');
-    if (savedApproved) {
-      setRecentTrips(JSON.parse(savedApproved));
-    }
-    
-    const savedPending = sessionStorage.getItem('riderApprovals');
-    if (savedPending) {
-      setPendingApprovals(JSON.parse(savedPending));
-    }
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/admin/dashboard');
+        const data = await response.json();
+        if (data.success) {
+          setStats(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch admin stats", err);
+      }
+    };
+    fetchStats();
   }, []);
 
-  const totalRiders = recentTrips.length;
-  const pendingCount = pendingApprovals.length;
-  const activeTripsCount = recentTrips.filter(t => t.status === 'Active').length;
-  const completedTripsCount = recentTrips.filter(t => t.status === 'Completed').length;
+  const totalRiders = stats.total_riders;
+  const pendingCount = stats.pending_approvals;
+  const activeTripsCount = stats.active_trips;
+  const completedTripsCount = stats.completed_trips;
+  const recentTrips = stats.recent_trips;
 
   return (
     <div className="bg-[#F4F7FA] text-on-background font-body-md min-h-screen h-screen flex overflow-hidden">
@@ -59,26 +68,26 @@ const AdminDashboard = () => {
         </div>
         <ul className="flex-1 px-md space-y-1 overflow-y-auto">
           <li>
-            <a
+            <Link
               className="flex items-center gap-md px-md py-sm rounded-lg text-primary dark:text-primary-fixed font-semibold bg-primary/10 transition-all duration-200 ease-in-out"
-              href="#"
+              to="/admin-dashboard"
             >
               <span className="material-symbols-outlined text-[20px]" data-icon="dashboard">
                 dashboard
               </span>
               Dashboard
-            </a>
+            </Link>
           </li>
           <li>
-            <a
+            <Link
               className="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200 ease-in-out font-medium"
-              href="#"
+              to="/approval"
             >
               <span className="material-symbols-outlined text-[20px]" data-icon="group">
                 group
               </span>
               Riders
-            </a>
+            </Link>
           </li>
           <li>
             <a
@@ -119,7 +128,7 @@ const AdminDashboard = () => {
             <li>
               <Link
                 className="flex items-center gap-md px-md py-sm rounded-lg text-primary hover:bg-primary/10 transition-all duration-200 ease-in-out font-medium"
-                to="/dashboard"
+                to="/"
               >
                 <span className="material-symbols-outlined text-[20px]" data-icon="arrow_back">
                   arrow_back

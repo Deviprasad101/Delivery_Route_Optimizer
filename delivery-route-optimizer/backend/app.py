@@ -297,6 +297,67 @@ def get_pending_trips():
     trips = Trip.query.filter_by(status='Pending').order_by(Trip.id.desc()).all()
     return jsonify({"success": True, "trips": [t.to_dict() for t in trips]})
 
+# -------------------------------------------------------------
+# Admin API Routes
+# -------------------------------------------------------------
+
+@app.route('/api/admin/dashboard', methods=['GET'])
+def get_admin_dashboard_stats():
+    total_riders = Rider.query.count()
+    pending_approvals = Rider.query.filter_by(status='Pending').count()
+    active_trips = Trip.query.filter(Trip.status.in_(['Pending', 'Active'])).count()
+    completed_trips = Trip.query.filter_by(status='Completed').count()
+    
+    recent_trips_query = Trip.query.order_by(Trip.id.desc()).limit(5).all()
+    recent_trips = []
+    for t in recent_trips_query:
+        recent_trips.append({
+            "id": t.id,
+            "name": "Unassigned",
+            "customer": t.customer_name or "Guest",
+            "status": t.status,
+            "amount": t.fare
+        })
+        
+    return jsonify({
+        "success": True,
+        "total_riders": total_riders,
+        "pending_approvals": pending_approvals,
+        "active_trips": active_trips,
+        "completed_trips": completed_trips,
+        "recent_trips": recent_trips
+    })
+
+@app.route('/api/admin/riders/pending', methods=['GET'])
+def get_pending_riders():
+    riders = Rider.query.filter_by(status='Pending').all()
+    riders_data = [{
+        "id": r.id, 
+        "name": r.username, 
+        "phone": "N/A", 
+        "documents": {}, 
+        "status": r.status
+    } for r in riders]
+    return jsonify({"success": True, "riders": riders_data})
+
+@app.route('/api/admin/riders/<int:id>/approve', methods=['POST'])
+def approve_rider(id):
+    rider = Rider.query.get(id)
+    if not rider:
+        return jsonify({"success": False, "message": "Rider not found"}), 404
+    rider.status = 'Approved'
+    db.session.commit()
+    return jsonify({"success": True, "message": "Rider approved"})
+
+@app.route('/api/admin/riders/<int:id>', methods=['DELETE'])
+def delete_rider(id):
+    rider = Rider.query.get(id)
+    if not rider:
+        return jsonify({"success": False, "message": "Rider not found"}), 404
+    db.session.delete(rider)
+    db.session.commit()
+    return jsonify({"success": True, "message": "Rider deleted"})
+
 
 
 def create_initial_admin():
