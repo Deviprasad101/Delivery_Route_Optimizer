@@ -1,6 +1,9 @@
 import os
 import random
 import smtplib
+import json
+import random
+import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from flask import Flask, request, jsonify
@@ -57,6 +60,49 @@ class Rider(db.Model):
         self.email = email
         self.password_hash = password_hash
         self.status = status
+
+class Trip(db.Model):
+    __tablename__ = 'trips'
+    id = db.Column(db.Integer, primary_key=True)
+    customer_name = db.Column(db.String(80), nullable=True)
+    pickup_address = db.Column(db.Text, nullable=False)
+    drop_address = db.Column(db.Text, nullable=False)
+    pickup_lat = db.Column(db.Float, nullable=False)
+    pickup_lon = db.Column(db.Float, nullable=False)
+    drop_lat = db.Column(db.Float, nullable=False)
+    drop_lon = db.Column(db.Float, nullable=False)
+    distance = db.Column(db.String(20), nullable=False)
+    fare = db.Column(db.Float, nullable=False)
+    route_data = db.Column(db.Text, nullable=True) # JSON string
+    status = db.Column(db.String(20), default='Pending')
+
+    def __init__(self, customer_name, pickup_address, drop_address, pickup_lat, pickup_lon, drop_lat, drop_lon, distance, fare, route_data=None, status='Pending'):
+        self.customer_name = customer_name
+        self.pickup_address = pickup_address
+        self.drop_address = drop_address
+        self.pickup_lat = pickup_lat
+        self.pickup_lon = pickup_lon
+        self.drop_lat = drop_lat
+        self.drop_lon = drop_lon
+        self.distance = distance
+        self.fare = fare
+        self.route_data = route_data
+        self.status = status
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "customer_name": self.customer_name or "Guest",
+            "pickup": self.pickup_address,
+            "drop": self.drop_address,
+            "pickupCoords": [self.pickup_lat, self.pickup_lon],
+            "dropCoords": [self.drop_lat, self.drop_lon],
+            "distance": self.distance,
+            "fare": self.fare,
+            "routeData": json.loads(self.route_data) if self.route_data else None,
+            "status": self.status
+        }
+
 
 # -------------------------------------------------------------
 # Configuration for SMTP
@@ -176,16 +222,7 @@ def login():
     if not user or not check_password_hash(user.password_hash, password):
         return jsonify({"success": False, "message": "Invalid username or password"}), 401
 
-    otp_code = str(random.randint(1000, 9999))
-    otp_store[user.email] = {
-        "otp": otp_code,
-        "action": "login",
-        "data": {"role": role, "email": user.email}
-    }
-    
-    print(f"[DEBUG] Login OTP {otp_code} for {user.email}")
-    send_email_smtp(user.email, otp_code)
-    return jsonify({"success": True, "message": "OTP sent to email", "email": user.email})
+    return jsonify({"success": True, "message": "Logged in successfully!", "email": user.email})
 
 
 @app.route('/api/verify-otp', methods=['POST'])
@@ -222,6 +259,44 @@ def verify_otp():
         # Just complete login
         del otp_store[email]
         return jsonify({"success": True, "message": "Logged in successfully!"})
+
+
+@app.route('/api/riders/available', methods=['GET'])
+def get_available_riders():
+    """Fetches all available riders."""
+    riders = Rider.query.all()
+    riders_data = [{"id": r.id, "username": r.username, "status": r.status} for r in riders]
+    return jsonify({"success": True, "riders": riders_data})
+
+
+@app.route('/api/trips', methods=['POST'])
+def create_trip():
+    data = request.get_json()
+    try:
+        new_trip = Trip(
+            customer_name=data.get('customer_name', 'Guest'),
+            pickup_address=data.get('pickup'),
+            drop_address=data.get('drop'),
+            pickup_lat=data.get('pickupCoords')[0],
+            pickup_lon=data.get('pickupCoords')[1],
+            drop_lat=data.get('dropCoords')[0],
+            drop_lon=data.get('dropCoords')[1],
+            distance=str(data.get('distance')),
+            fare=float(data.get('fare')),
+            route_data=json.dumps(data.get('routeData')) if data.get('routeData') else None
+        )
+        db.session.add(new_trip)
+        db.session.commit()
+        return jsonify({"success": True, "trip_id": new_trip.id})
+    except Exception as e:
+        print("Error creating trip:", e)
+        return jsonify({"success": False, "message": str(e)}), 400
+
+@app.route('/api/trips/pending', methods=['GET'])
+def get_pending_trips():
+    trips = Trip.query.filter_by(status='Pending').order_by(Trip.id.desc()).all()
+    return jsonify({"success": True, "trips": [t.to_dict() for t in trips]})
+
 
 
 def create_initial_admin():
