@@ -4,8 +4,8 @@ npm-debug.log
 yarn-error.log
 
 # Python
-backend/venv/
-backend/__pycache__/
+venv/
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
